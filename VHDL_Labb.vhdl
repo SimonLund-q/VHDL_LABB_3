@@ -11,7 +11,6 @@ entity kodlas is
 end kodlas;
 
 architecture rtl of kodlas is
-    -- Using prom_type to avoid conflicts with the PROM constant name
     type prom_type is array (0 to 15) of std_logic_vector(2 downto 0); 
     
     constant PROM : prom_type := (
@@ -36,21 +35,18 @@ architecture rtl of kodlas is
     signal data : std_logic_vector(2 downto 0);
     signal addr : unsigned(3 downto 0);
 
-    -- q0 and q1 represent our register state outputs
     signal q0, q1: std_logic;
     signal q0_plus, q1_plus: std_logic;
 
 begin
-    -- Combinational Logic: Create the ROM address from inputs and current states
-    addr <= unsigned(std_logic_vector'(x1 & x0 & q1 & q0));
+    addr <= unsigned(std_logic_vector'(q1 & q0 & x1 & x0));
     data <= PROM(to_integer(addr));
 
-    -- Assign current output and next-state signals from ROM bits
+
     u        <= data(2);
     q1_plus  <= data(1);
     q0_plus  <= data(0);
 
-    -- Sequential Logic: Synchronous registers replacing the two D flip-flops
     registers : process(clk, reset)
     begin
         if reset = '1' then
